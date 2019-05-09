@@ -1,6 +1,4 @@
 import analyze_base as ab
-import pandas as pd
-import os
 import macd_base as mb
 
 

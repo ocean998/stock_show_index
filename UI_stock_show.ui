@@ -340,31 +340,29 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBox_5">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>480</y>
-      <width>1341</width>
-      <height>151</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>成交量</string>
-    </property>
-   </widget>
    <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>670</y>
+      <y>420</y>
       <width>1341</width>
-      <height>151</height>
+      <height>421</height>
      </rect>
     </property>
     <property name="title">
      <string>MACD </string>
     </property>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>1331</width>
+       <height>401</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout"/>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_7">
     <property name="geometry">
@@ -377,6 +375,19 @@
     </property>
     <property name="title">
      <string>基础级别 MACD </string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>380</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>MACD Plot</string>
     </property>
    </widget>
   </widget>

@@ -1,12 +1,18 @@
 import UI_stock_show as UI
 import macd_base as mb
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread
 import stock_base as stb
 
+import matplotlib
+matplotlib.use("Qt5Agg")  # 声明使用QT5
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import pandas as pd
 
+
+# 多线程 取数据计算macd 避免界面无响应
 class MACD_Calc(QThread):
     macd_m = None
     para_m = ''
@@ -19,7 +25,7 @@ class MACD_Calc(QThread):
 
     def __init__(self):
         super().__init__()
-
+    # 初始化月 周 日 macd
     def set_macd_m(self, what_macd, what_para):
         self.macd_m = what_macd
         self.para_m = what_para
@@ -48,6 +54,21 @@ class MACD_Calc(QThread):
             self.macd_d.save_golden(self.para_d)
             self.macd_d.disconnect()
 
+#创建一个matplotlib图形绘制类
+class MyFigure(FigureCanvas):
+    def __init__(self,width=5, height=4, dpi=100):
+        #第一步：创建一个创建Figure
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        #第二步：在父类中激活Figure窗口
+        super(MyFigure,self).__init__(self.fig) #此句必不可少，否则不能显示图形
+        #第三步：创建一个子图，用于绘制图形用，111表示子图编号，如matlab的subplot(1,1,1)
+        self.axes = self.fig.add_subplot(111)
+    #第四步：就是画图，【可以在此类中画，也可以在其它类中画】
+    def plot_macd(self, macd = None):
+        self.fig.clear()
+        self.axes0 = self.fig.add_subplot(111)
+
+
 
 class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
     '''根据界面、逻辑分离原则 初始化界面部分'''
@@ -61,6 +82,17 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
 
         self.pushButton_4.clicked.connect(self.conditions)
         self.set_init_conditions()
+
+        # 第五步：定义MyFigure类的一个实例
+        self.F = MyFigure(width=20, height=2, dpi=80)
+
+        # 第六步：在GUI的groupBox中创建一个布局，用于添加MyFigure类的实例（即图形）后其他部件。
+        # 继承容器groupBox
+        self.gridLayout.addWidget(self.F, 0, 1)
+
+
+
+
 
     def init_mwd(self):
         '''全部股票代码选出月线金叉，在此基础上选周线金叉，在此基础上再选日线金叉'''
@@ -184,5 +216,6 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     MP = stock_UI()
+    MP.setWindowTitle(' ~^_^~ MACD指标选股')
     MP.show()
     sys.exit(app.exec_())

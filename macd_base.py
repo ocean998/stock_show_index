@@ -132,8 +132,7 @@ class MACD_INDEX:
 
             result = pd.DataFrame(data_list, columns=rs.fields)
             # 修改列名 date-->time
-            if self.jb in ['d', 'w', 'm']:
-                result.rename(columns={'date': 'time'}, inplace=True)
+            result.rename(columns={'date': 'time'}, inplace=True)
             return result
 
         if self.jb in [ '60', '15'  ]:
