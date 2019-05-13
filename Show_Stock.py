@@ -66,16 +66,22 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.pushButton_3.clicked.connect(self.init_wd)
 
         self.pushButton_4.clicked.connect(self.conditions)
+        self.pushButton_5.clicked.connect(self.plot_index)
         self.set_init_conditions()
 
         # 第五步：定义MyFigure类的一个实例
-        self.Fig = mf.MyFigure(width=20, height=2, dpi=80)
+        self.fig = mf.MyFigure(width=20, height=2, dpi=80)
 
+
+
+
+
+    def plot_index( self ):
         # 第六步：在GUI的groupBox中创建一个布局，用于添加MyFigure类的实例（即图形）后其他部件。
         # 继承容器groupBox
-        self.gridLayout.addWidget(self.Fig, 0, 1)
-
-
+        self.fig.plot_macd()
+        # self.fig.plot_macd()
+        self.gridLayout.addWidget(self.fig, 0, 1)
 
 
 
