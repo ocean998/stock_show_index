@@ -1,3 +1,4 @@
+import Matplotlib_Figure as mf
 import UI_stock_show as UI
 import macd_base as mb
 from PyQt5 import QtWidgets
@@ -6,7 +7,6 @@ import stock_base as stb
 
 import matplotlib
 matplotlib.use("Qt5Agg")  # 声明使用QT5
-import Matplotlib_Figure as mf
 
 
 # 多线程 取数据计算macd 避免界面无响应
@@ -23,6 +23,7 @@ class MACD_Calc(QThread):
     def __init__(self):
         super().__init__()
     # 初始化月 周 日 macd
+
     def set_macd_m(self, what_macd, what_para):
         self.macd_m = what_macd
         self.para_m = what_para
@@ -52,9 +53,6 @@ class MACD_Calc(QThread):
             self.macd_d.disconnect()
 
 
-
-
-
 class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
     '''根据界面、逻辑分离原则 初始化界面部分'''
 
@@ -69,21 +67,30 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.pushButton_5.clicked.connect(self.plot_index)
         self.set_init_conditions()
 
+    def plot_index(self):
         # 第五步：定义MyFigure类的一个实例
-        self.fig = mf.MyFigure(width=20, height=2, dpi=80)
 
-
-
-
-
-    def plot_index( self ):
+        # 第五步：定义MyFigure类的一个实例
+        self.F = mf.MyFigure(width=13, height=4, dpi=100)
+        # self.F.plotsin()
+        self.F.plot_sin()
         # 第六步：在GUI的groupBox中创建一个布局，用于添加MyFigure类的实例（即图形）后其他部件。
-        # 继承容器groupBox
-        self.fig.plot_macd()
-        # self.fig.plot_macd()
-        self.gridLayout.addWidget(self.fig, 0, 1)
+        self.gridLayout.addWidget(self.F, 0, 1)
 
 
+        graphicscene = QtWidgets.QGraphicsScene()
+
+        # 第四步，把图形放到QGraphicsScene中，注意：图形是作为一个QWidget放到QGraphicsScene中的
+        self.fig = mf.MyFigure(width=14, height=2, dpi=100)
+        self.fig.plot_macd('sz000725', '60')
+        #self.fig.plot_sin()
+        graphicscene.addWidget(self.fig)
+        # 第五步，把QGraphicsScene放入QGraphicsView
+        self.graphicsView.setScene(graphicscene)
+        # 最后，调用show方法呈现图形！Voila!!
+        self.graphicsView.show()
+        # # self.setCentralWidget(self.graphicsView)
+        # self.graphicsView.setFixedSize(1300,400)
 
     def init_mwd(self):
         '''全部股票代码选出月线金叉，在此基础上选周线金叉，在此基础上再选日线金叉'''

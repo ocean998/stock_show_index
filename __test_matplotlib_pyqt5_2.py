@@ -12,6 +12,11 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 
+# -*- coding: utf-8 -*-
+# Form implementation generated from reading ui file 'testplot2pyqt5.ui'
+# Created by: PyQt5 UI code generator 5.10
+# WARNING! All changes made in this file will be lost!
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Dialog(object):
@@ -41,6 +46,7 @@ class Ui_Dialog(object):
         self.groupBox.setTitle(_translate("Dialog", "GroupBox_Matplotlib的图形显示："))
 
 
+
 #创建一个matplotlib图形绘制类
 class MyFigure(FigureCanvas):
     def __init__(self,width=5, height=4, dpi=100):
@@ -50,6 +56,7 @@ class MyFigure(FigureCanvas):
         super(MyFigure,self).__init__(self.fig) #此句必不可少，否则不能显示图形
         #第三步：创建一个子图，用于绘制图形用，111表示子图编号，如matlab的subplot(1,1,1)
         self.axes = self.fig.add_subplot(111)
+
     #第四步：就是画图，【可以在此类中画，也可以在其它类中画】
     def plotsin(self):
         self.axes0 = self.fig.add_subplot(111)
