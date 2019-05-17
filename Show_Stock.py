@@ -6,6 +6,7 @@ from PyQt5.QtCore import QThread
 import stock_base as stb
 
 import matplotlib
+
 matplotlib.use("Qt5Agg")  # 声明使用QT5
 
 
@@ -20,26 +21,27 @@ class MACD_Calc(QThread):
     macd_d = None
     para_d = ''
 
-    def __init__(self):
+    def __init__( self ):
         super().__init__()
+
     # 初始化月 周 日 macd
 
-    def set_macd_m(self, what_macd, what_para):
+    def set_macd_m( self, what_macd, what_para ):
         self.macd_m = what_macd
         self.para_m = what_para
 
-    def set_macd_w(self, what_macd, what_para):
+    def set_macd_w( self, what_macd, what_para ):
         self.macd_w = what_macd
         self.para_w = what_para
 
-    def set_macd_d(self, what_macd, what_para):
+    def set_macd_d( self, what_macd, what_para ):
         self.macd_d = what_macd
         self.para_d = what_para
 
-    def __del__(self):
+    def __del__( self ):
         self.wait()
 
-    def run(self):
+    def run( self ):
         if self.macd_m is not None:
             self.macd_m.save_golden(self.para_m)
             self.macd_m.disconnect()
@@ -56,18 +58,24 @@ class MACD_Calc(QThread):
 class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
     '''根据界面、逻辑分离原则 初始化界面部分'''
 
-    def __init__(self, parent=None):
+    def __init__( self, parent = None ):
         super(stock_UI, self).__init__(parent)
         self.setupUi(self)
         self.pushButton.clicked.connect(self.init_mwd)
         self.pushButton_2.clicked.connect(self.init_d)
         self.pushButton_3.clicked.connect(self.init_wd)
-
         self.pushButton_4.clicked.connect(self.conditions)
         self.pushButton_5.clicked.connect(self.plot_index)
+        self.listWidget.itemClicked.connect(self.list_clicked)
+
         self.set_init_conditions()
 
-    def plot_index(self):
+    def list_clicked( self, item ):
+        self.lineEdit.clear()
+        code = item.text()
+        self.lineEdit.setText(code)
+
+    def plot_index( self ):
         # 第五步：定义MyFigure类的一个实例
 
         # 第五步：定义MyFigure类的一个实例
@@ -77,13 +85,12 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         # 第六步：在GUI的groupBox中创建一个布局，用于添加MyFigure类的实例（即图形）后其他部件。
         self.gridLayout.addWidget(self.F, 0, 1)
 
-
         graphicscene = QtWidgets.QGraphicsScene()
 
         # 第四步，把图形放到QGraphicsScene中，注意：图形是作为一个QWidget放到QGraphicsScene中的
         self.fig = mf.MyFigure(width=14, height=2, dpi=100)
         self.fig.plot_macd('sz000725', '60')
-        #self.fig.plot_sin()
+        # self.fig.plot_sin()
         graphicscene.addWidget(self.fig)
         # 第五步，把QGraphicsScene放入QGraphicsView
         self.graphicsView.setScene(graphicscene)
@@ -92,7 +99,7 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         # # self.setCentralWidget(self.graphicsView)
         # self.graphicsView.setFixedSize(1300,400)
 
-    def init_mwd(self):
+    def init_mwd( self ):
         '''全部股票代码选出月线金叉，在此基础上选周线金叉，在此基础上再选日线金叉'''
         self.statusbar.showMessage('金叉初始化(月周日)')
         macd_m = mb.MACD_INDEX('m')
@@ -112,7 +119,7 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
                                'D:\\0_stock_macd\\_周K线金叉.csv')
         self.thread.start()
 
-    def init_wd(self):
+    def init_wd( self ):
         '''全部股票代码选出周线金叉，在此基础上再选日线金叉'''
         self.statusbar.showMessage('金叉初始化(周日)')
         macd_w = mb.MACD_INDEX('w')
@@ -127,7 +134,7 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
                                'D:\\0_stock_macd\\_周K线金叉.csv')
         self.thread.start()
 
-    def init_d(self):
+    def init_d( self ):
         '''全部股票代码选出日线金叉'''
         self.statusbar.showMessage('金叉初始化(日)')
         macd_d = mb.MACD_INDEX('d')
@@ -137,15 +144,14 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.thread.set_macd_d(macd_d, 'all')
         self.thread.start()
 
-    def set_init_conditions(self):
+    def set_init_conditions( self ):
         self.radioButton_2.setChecked(True)
         self.radioButton_6.setChecked(True)
         self.radioButton_9.setChecked(True)
 
-    def conditions(self):
+    def conditions( self ):
         self.statusbar.showMessage('正在计算...')
-        self.textEdit.clear()
-
+        self.listWidget.clear()
         if self.radioButton.isChecked():
             # print('radioButton 月线')
             path = 'D:\\0_stock_macd\\_月K线金叉.csv'
@@ -202,9 +208,9 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
                 if all_stock.iloc[i]['stock_code'].find(code[3:]) > 0:
                     rst = '{: <4d}'.format(x + 1) + code
                     rst = rst + '\t' + all_stock.iloc[i]['stock_name']
-                    self.textEdit.append(rst)
+                    self.listWidget.addItem(rst)
 
-    def macd_progress(self, curr):
+    def macd_progress( self, curr ):
         self.label.setText(curr)
         QtWidgets.QApplication.processEvents()
 
