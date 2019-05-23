@@ -1,3 +1,4 @@
+# coding:utf-8
 import baostock as bs
 import pandas as pd
 import stock_base
@@ -150,6 +151,7 @@ class MACD_INDEX:
             data是包含高开低收成交量的标准dataframe
             sema,lema,m_ema分别是macd的三个参数
         '''
+        print(data)
         if data.shape[0] < 30:
             raise MACD_Error('K线数据少于30个周期，不计算MACD')
         xx = pd.DataFrame()
@@ -223,7 +225,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = df3
 
         print('\n\t\t', '完成！请打开：', self.save_name, '\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf-8')
+        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
 
     def save_bing_golden(self, market='all'):
         """周线选股时，日线即将金叉，或者已经金叉的日线级别增强判断"""
@@ -278,7 +280,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = df3
 
         print('\n\t\t', '完成！请打开：', self.save_name, '\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf-8')
+        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
 
     def save_golden_now(self, market='all', isprt=False):
         df_rst = pd.DataFrame(
@@ -341,7 +343,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = df3
 
         print('\n \t\t', '完成！\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf-8')
+        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
 
     def save_bottom(self, market='all', isprt=False):
         '''保存底背离股票代码'''
@@ -397,7 +399,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = dbl_rst
 
         print('\n \t\t', '完成！\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf-8')
+        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
 
     def save_top(self, market='all', isprt=False):
         df_rst = pd.DataFrame(

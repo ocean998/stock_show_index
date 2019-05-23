@@ -67,7 +67,7 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.pushButton_4.clicked.connect(self.conditions)
         self.pushButton_5.clicked.connect(self.plot_index)
         self.listWidget.itemClicked.connect(self.list_clicked)
-
+        self.jb = '60'
         self.set_init_conditions()
 
     def list_clicked( self, item ):
@@ -76,10 +76,13 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.lineEdit.setText(code)
 
     def plot_index( self ):
+        code = self.lineEdit.text().split('\t')[0]
+        code = code[code.find('s'):]
+        curr_code = code[0:2]+code[3:]
+        # 1   sz.002467	二六三
+        print(curr_code)
         # 第五步：定义MyFigure类的一个实例
-
-        # 第五步：定义MyFigure类的一个实例
-        self.F = mf.MyFigure(width=13, height=4, dpi=100)
+        self.F = mf.MyFigure(self, width=16, height=3, dpi=100)
         # self.F.plotsin()
         self.F.plot_sin()
         # 第六步：在GUI的groupBox中创建一个布局，用于添加MyFigure类的实例（即图形）后其他部件。
@@ -88,10 +91,24 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         graphicscene = QtWidgets.QGraphicsScene()
 
         # 第四步，把图形放到QGraphicsScene中，注意：图形是作为一个QWidget放到QGraphicsScene中的
-        self.fig = mf.MyFigure(width=14, height=2, dpi=100)
-        self.fig.plot_macd('sz000725', '60')
+        self.fig = mf.MyFigure(self, width=14, height=4, dpi=200)
+
+        if self.radioButton_6.isChecked():
+            # print('radioButton_6 60 分钟级别')
+            self.jb = '60'
+
+        if self.radioButton_7.isChecked():
+            # print('radioButton_7 15 分钟级别')
+            self.jb = '15'
+
+        if self.radioButton_12.isChecked():
+            # print('radioButton_12 日线级别')
+            self.jb = 'd'
+
+        self.fig.plot_macd(curr_code, self.jb)
         # self.fig.plot_sin()
         graphicscene.addWidget(self.fig)
+        # self.fig.setParent(self.graphicsView)
         # 第五步，把QGraphicsScene放入QGraphicsView
         self.graphicsView.setScene(graphicscene)
         # 最后，调用show方法呈现图形！Voila!!
@@ -166,16 +183,18 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
 
         if self.radioButton_6.isChecked():
             # print('radioButton_6 60 分钟级别')
-            macd_jb = mb.MACD_INDEX('60')
-            macd_jb.signal.send.connect(self.macd_progress)
+            self.jb = '60'
+
         if self.radioButton_7.isChecked():
             # print('radioButton_7 15 分钟级别')
-            macd_jb = mb.MACD_INDEX('15')
-            macd_jb.signal.send.connect(self.macd_progress)
+            self.jb = '15'
+
         if self.radioButton_12.isChecked():
             # print('radioButton_12 日线级别')
-            macd_jb = mb.MACD_INDEX('d')
-            macd_jb.signal.send.connect(self.macd_progress)
+            self.jb = 'd'
+
+        macd_jb = mb.MACD_INDEX(self.jb)
+        macd_jb.signal.send.connect(self.macd_progress)
 
         if self.radioButton_8.isChecked():
             # print('radioButton_8 已金叉')

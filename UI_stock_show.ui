@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1347</width>
-    <height>922</height>
+    <width>1348</width>
+    <height>898</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="font">
    <font>
@@ -359,6 +365,12 @@
       <height>451</height>
      </rect>
     </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
     <property name="title">
      <string>MACD </string>
     </property>
@@ -368,7 +380,7 @@
        <x>0</x>
        <y>20</y>
        <width>1341</width>
-       <height>171</height>
+       <height>111</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2"/>
@@ -377,9 +389,9 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>200</y>
+       <y>140</y>
        <width>1341</width>
-       <height>251</height>
+       <height>311</height>
       </rect>
      </property>
     </widget>
@@ -421,16 +433,6 @@
      <string>MACD Plot</string>
     </property>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1347</width>
-     <height>23</height>
-    </rect>
-   </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
