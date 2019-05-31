@@ -1,41 +1,39 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'UI_WebEngineView.ui'
-#
-# Created by: PyQt5 UI code generator 5.12.1
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWebEngineWidgets import *
-
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(975, 721)
-        self.pushButton = QtWidgets.QPushButton(Form)
-        self.pushButton.setGeometry(QtCore.QRect(0, 0, 75, 23))
-        self.pushButton.setObjectName("pushButton")
-        self.webEngineView = QWebEngineView(Form)
-        self.webEngineView.setGeometry(QtCore.QRect(10, 30, 961, 681))
-        self.webEngineView.setObjectName("QWebEngineView")
-
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
-
-    def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
-        self.pushButton.setText(_translate("Form", "PushButton"))
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QFrame
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+import sys
 
 
+class Stacked(QWidget):
+    def __init__( self ):
+        super(Stacked, self).__init__()
+        self.initUI()
+        self.mainLayout()
+
+    def initUI( self ):
+        self.setGeometry(200, 200, 1200, 800)
+        self.setWindowTitle("demo1")
+
+    def mainLayout( self ):
+        self.mainhboxLayout = QHBoxLayout(self)
+        self.frame = QFrame(self)
+        self.mainhboxLayout.addWidget(self.frame)
+        self.hboxLayout = QHBoxLayout(self.frame)
+        self.myHtml = QWebEngineView()
+        url = "file:///C:/Users/Administrator/PycharmProjects/stock_show_index/pyecharts/render.html"
+        # 打开本地html文件
+        self.myHtml.load(QUrl(url))
+        # self.myHtml.load(QUrl("bar1.html"))   #无法显示，要使用绝对地址定位，在地址前面加上 file:/// ，将地址的 \ 改为/
+        # 打开网页url
+        # self.myHtml.load(QUrl(url))
+
+        self.hboxLayout.addWidget(self.myHtml)
+        self.setLayout(self.mainhboxLayout)
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = Stacked()
+    ex.show()
     sys.exit(app.exec_())
+
