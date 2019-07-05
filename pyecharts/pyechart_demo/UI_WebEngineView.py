@@ -20,7 +20,7 @@ class Stacked(QWidget):
         self.mainhboxLayout.addWidget(self.frame)
         self.hboxLayout = QHBoxLayout(self.frame)
         self.myHtml = QWebEngineView()
-        url = "file:///C:/Users/Administrator/PycharmProjects/stock_show_index/pyecharts/render.html"
+        url = "file:///C:/Users/Administrator/PycharmProjects/stock_show_index/macd.html"
         # 打开本地html文件
         self.myHtml.load(QUrl(url))
         # self.myHtml.load(QUrl("bar1.html"))   #无法显示，要使用绝对地址定位，在地址前面加上 file:/// ，将地址的 \ 改为/

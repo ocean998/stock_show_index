@@ -1,13 +1,10 @@
-import Matplotlib_Figure as mf
+
 import UI_stock_show as UI
 import macd_base as mb
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QThread
 import stock_base as stb
 
-import matplotlib
-
-matplotlib.use("Qt5Agg")  # 声明使用QT5
 
 
 # 多线程 取数据计算macd 避免界面无响应
@@ -75,23 +72,13 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         code = item.text()
         self.lineEdit.setText(code)
 
+    # 显示指标图形
     def plot_index( self ):
+        if len(self.lineEdit.text().strip()) < 10:
+            print('错误提示框')
         code = self.lineEdit.text().split('\t')[0]
         code = code[code.find('s'):]
         curr_code = code[0:2]+code[3:]
-        # 1   sz.002467	二六三
-        print(curr_code)
-        # 第五步：定义MyFigure类的一个实例
-        self.F = mf.MyFigure(self, width=16, height=3, dpi=100)
-        # self.F.plotsin()
-        self.F.plot_sin()
-        # 第六步：在GUI的groupBox中创建一个布局，用于添加MyFigure类的实例（即图形）后其他部件。
-        self.gridLayout.addWidget(self.F, 0, 1)
-
-        graphicscene = QtWidgets.QGraphicsScene()
-
-        # 第四步，把图形放到QGraphicsScene中，注意：图形是作为一个QWidget放到QGraphicsScene中的
-        self.fig = mf.MyFigure(self, width=14, height=4, dpi=200)
 
         if self.radioButton_6.isChecked():
             # print('radioButton_6 60 分钟级别')
@@ -105,16 +92,6 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
             # print('radioButton_12 日线级别')
             self.jb = 'd'
 
-        self.fig.plot_macd(curr_code, self.jb)
-        # self.fig.plot_sin()
-        graphicscene.addWidget(self.fig)
-        # self.fig.setParent(self.graphicsView)
-        # 第五步，把QGraphicsScene放入QGraphicsView
-        self.graphicsView.setScene(graphicscene)
-        # 最后，调用show方法呈现图形！Voila!!
-        self.graphicsView.show()
-        # # self.setCentralWidget(self.graphicsView)
-        # self.graphicsView.setFixedSize(1300,400)
 
     def init_mwd( self ):
         '''全部股票代码选出月线金叉，在此基础上选周线金叉，在此基础上再选日线金叉'''

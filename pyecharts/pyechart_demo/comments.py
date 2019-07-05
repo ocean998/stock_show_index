@@ -51,7 +51,7 @@ class _Faker:
     days_attrs = ["{}天".format(i) for i in range(30)]
     days_values = [random.randint(1, 30) for _ in range(30)]
 
-    def choose(self) -> list:
+    def choose(self)  :
         return random.choice(
             [
                 self.clothes,
@@ -107,3 +107,8 @@ class Collector:
     @staticmethod
     def funcs(fn):
         Collector.charts.append((fn, fn.__name__))
+
+if __name__ == '__main__':
+
+    x = Faker.choose()
+    print(x)

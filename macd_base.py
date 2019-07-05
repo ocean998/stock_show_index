@@ -83,7 +83,7 @@ class MACD_INDEX:
 
         txt = resp[2:len(resp) - 2]
         # DataFrame 初始化和添加一行数据
-        df_rst = pd.DataFrame(columns=('time', 'close', 'volume'))
+        df_rst = pd.DataFrame(columns=('time','open', 'high', 'low', 'close', 'volume'))
 
         rst = []
         point = 0
@@ -93,11 +93,25 @@ class MACD_INDEX:
                     if item.split(':')[0] == 'day':
                         date = item.split(':')[1] + ':' + item.split(':')[2]
                         rst.append(date[1:])
+                        continue
+                    if item.split(':')[0] == 'open':
+                        rst.append(float(item.split(':')[1][1:-1]))
+                        continue
+                    if item.split(':')[0] == 'high':
+                        rst.append(float(item.split(':')[1][1:-1]))
+                        continue
+
+                    if item.split(':')[0] == 'low':
+                        rst.append(float(item.split(':')[1][1:-1]))
+                        continue
                     if item.split(':')[0] == 'close':
                         rst.append(float(item.split(':')[1][1:-1]))
+                        continue
+
                     if item.split(':')[0] == 'volume':
                         rst.append(int(item.split(':')[1][1:-1]))
-                    if len(rst) == 3:
+
+                    if len(rst) == 6:
                         point += 1
                         df_rst.loc[point] = rst
                         rst.clear()
@@ -113,7 +127,7 @@ class MACD_INDEX:
         # d=日k线、w=周、m=月、5=5分钟、15=15分钟、30=30分钟、60=60分钟k线数据
         self.code = code
         if self.jb in ['d', 'w', 'm']:
-            indexs = 'date,close,volume,amount,turn'
+            indexs = 'date,open,high,low,close,volume,amount,turn'
             rs = bs.query_history_k_data_plus(
                 code,
                 indexs,
@@ -128,12 +142,16 @@ class MACD_INDEX:
             data_list = []
             while (rs.error_code == '0') & rs.next():
                 # 获取一条记录，将记录合并在一起
-                # data_list[-1].append(float(data_list[-1][-1])/float(data_list[-1][-2]))
-                data_list.append(rs.get_row_data())
+                xx = rs.get_row_data()
+                print(xx)
+                for i in range(1,5,1):
+                    xx[i]=float('%.2f' % float(xx[i]))
+                data_list.append(xx)
 
             result = pd.DataFrame(data_list, columns=rs.fields)
             # 修改列名 date-->time
             result.rename(columns={'date': 'time'}, inplace=True)
+
             return result
 
         if self.jb in [ '60', '15'  ]:
@@ -151,7 +169,7 @@ class MACD_INDEX:
             data是包含高开低收成交量的标准dataframe
             sema,lema,m_ema分别是macd的三个参数
         '''
-        print(data)
+        # print(data)
         if data.shape[0] < 30:
             raise MACD_Error('K线数据少于30个周期，不计算MACD')
         xx = pd.DataFrame()
@@ -448,8 +466,8 @@ class MACD_INDEX:
 
 if __name__ == "__main__":
     macd_60 = MACD_INDEX('60')
-    macd_60.save_golden('D:\\0_stock_macd\\_日K线金叉.csv')
-
+    # macd_60.save_golden('D:\\0_stock_macd\\_日K线金叉.csv')
+    macd_60.get_min_index('sz.000725', '60')
     # macd_15 = MACD_INDEX('15')
     # macd_15.save_golden('D:\\0_stock_macd\\_60分钟K线金叉.csv')
 
