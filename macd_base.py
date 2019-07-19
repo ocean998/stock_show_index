@@ -9,7 +9,7 @@ from PyQt5.QtCore import pyqtSignal,QObject
 class MACD_Error(Exception):
     """"各函数返回异常结果时抛出的异常"""
 
-    def __init__(self, msg):
+    def __init__(self, msg: object) -> object:
         Exception.__init__(self)
         self.msg = msg
 
@@ -29,7 +29,7 @@ class MACD_INDEX:
             计算macd指标，需要初始化周期级别
     '''
     signal = None
-    def __init__(self, jb='d'):
+    def __init__(self, jb: object = 'd') -> object:
         '''
                 根据周期初始化 开始时间，结束时间，股票列表
         '''
@@ -119,12 +119,11 @@ class MACD_INDEX:
             raise MACD_Error('rul 结果解析错误！')
         return df_rst
 
-    def get_index(self, code):
-        '''
+    def get_index(self, code: str) -> pd.DataFrame:
+        """
                 根据周期初始化 开始时间，结束时间，获取远程指标数据
-        '''
-        # 要获取的指标数据列表
-        # d=日k线、w=周、m=月、5=5分钟、15=15分钟、30=30分钟、60=60分钟k线数据
+                d=日k线、w=周、m=月、5=5分钟、15=15分钟、30=30分钟、60=60分钟k线数据
+        """
         self.code = code
         if self.jb in ['d', 'w', 'm']:
             indexs = 'date,open,high,low,close,volume,amount,turn'
@@ -137,13 +136,13 @@ class MACD_INDEX:
                 adjustflag="2")
             # 复权状态(1：后复权， 2：前复权，3：不复权）
             if rs.error_code != '0':
-                raise MACD_Error(code + ':k线指标获取失败！' + rs.error_msg)
+                raise MACD_Error("%s :k线指标获取失败！ %s" % (code, rs.error_msg) )
 
             data_list = []
             while (rs.error_code == '0') & rs.next():
                 # 获取一条记录，将记录合并在一起
                 xx = rs.get_row_data()
-                print(xx)
+                # print(xx)
                 for i in range(1,5,1):
                     xx[i]=float('%.2f' % float(xx[i]))
                 data_list.append(xx)
@@ -163,7 +162,7 @@ class MACD_INDEX:
                 return rst
 
 
-    def get_MACD(self, data, sema=12, lema=26, m_ema=9):
+    def get_MACD(self, data: object, sema: object = 12, lema: object = 26, m_ema: object = 9) -> object:
         '''
             根据股票代码计算macd结果，设置macd属性
             data是包含高开低收成交量的标准dataframe

@@ -1,14 +1,15 @@
-
 import UI_stock_show as UI
 import macd_base as mb
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, QUrl
 import stock_base as stb
-
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+import get_echart_html as geh
+import sys
 
 
 # 多线程 取数据计算macd 避免界面无响应
-class MACD_Calc(QThread):
+class MacdCalc(QThread):
     macd_m = None
     para_m = ''
 
@@ -18,27 +19,27 @@ class MACD_Calc(QThread):
     macd_d = None
     para_d = ''
 
-    def __init__( self ):
+    def __init__(self):
         super().__init__()
 
     # 初始化月 周 日 macd
 
-    def set_macd_m( self, what_macd, what_para ):
+    def set_macd_m(self, what_macd, what_para):
         self.macd_m = what_macd
         self.para_m = what_para
 
-    def set_macd_w( self, what_macd, what_para ):
+    def set_macd_w(self, what_macd, what_para):
         self.macd_w = what_macd
         self.para_w = what_para
 
-    def set_macd_d( self, what_macd, what_para ):
+    def set_macd_d(self, what_macd, what_para):
         self.macd_d = what_macd
         self.para_d = what_para
 
-    def __del__( self ):
+    def __del__(self):
         self.wait()
 
-    def run( self ):
+    def run(self):
         if self.macd_m is not None:
             self.macd_m.save_golden(self.para_m)
             self.macd_m.disconnect()
@@ -52,11 +53,11 @@ class MACD_Calc(QThread):
             self.macd_d.disconnect()
 
 
-class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
-    '''根据界面、逻辑分离原则 初始化界面部分'''
+class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
+    """根据界面、逻辑分离原则 初始化界面部分"""
 
-    def __init__( self, parent = None ):
-        super(stock_UI, self).__init__(parent)
+    def __init__(self, parent=None):
+        super(StockUi, self).__init__(parent)
         self.setupUi(self)
         self.pushButton.clicked.connect(self.init_mwd)
         self.pushButton_2.clicked.connect(self.init_d)
@@ -64,37 +65,64 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.pushButton_4.clicked.connect(self.conditions)
         self.pushButton_5.clicked.connect(self.plot_index)
         self.listWidget.itemClicked.connect(self.list_clicked)
+        self.thread = MacdCalc()
+        self.html_index = QWebEngineView()
+        self.html_volume = QWebEngineView()
+        self.html_macd = QWebEngineView()
+        self.html_base = QWebEngineView()
+
         self.jb = '60'
         self.set_init_conditions()
 
-    def list_clicked( self, item ):
+    def list_clicked(self, item):
         self.lineEdit.clear()
         code = item.text()
         self.lineEdit.setText(code)
 
-    # 显示指标图形
-    def plot_index( self ):
+    def plot_index(self):
+        """
+            显示指标图形
+        """
         if len(self.lineEdit.text().strip()) < 10:
             print('错误提示框')
-        code = self.lineEdit.text().split('\t')[0]
+        code = self.lineEdit.text().split(' ')[0]
         code = code[code.find('s'):]
-        curr_code = code[0:2]+code[3:]
 
         if self.radioButton_6.isChecked():
             # print('radioButton_6 60 分钟级别')
             self.jb = '60'
 
+
         if self.radioButton_7.isChecked():
             # print('radioButton_7 15 分钟级别')
             self.jb = '15'
+
 
         if self.radioButton_12.isChecked():
             # print('radioButton_12 日线级别')
             self.jb = 'd'
 
 
-    def init_mwd( self ):
-        '''全部股票代码选出月线金叉，在此基础上选周线金叉，在此基础上再选日线金叉'''
+        print(code)
+        charts = geh.StockData(code, self.jb)
+        charts.kline()
+        charts.volume_bar()
+        charts.macd_line()
+        charts.base_macd_line()
+
+        self.html_index.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/k线.html"))
+        self.html_volume.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/volume.html"))
+        self.html_macd.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/macd.html"))
+        self.html_base.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/base_macd.html"))
+
+        self.formLayout.addWidget(self.html_index)
+        self.formLayout_2.addWidget(self.html_volume)
+        self.formLayout_3.addWidget(self.html_macd)
+        self.formLayout_4.addWidget(self.html_base)
+        self.show()
+
+    def init_mwd(self):
+        """ 全部股票代码选出月线金叉，在此基础上选周线金叉，在此基础上再选日线金叉"""
         self.statusbar.showMessage('金叉初始化(月周日)')
         macd_m = mb.MACD_INDEX('m')
         macd_m.signal.send.connect(self.macd_progress)
@@ -105,45 +133,39 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         macd_d = mb.MACD_INDEX('d')
         macd_d.signal.send.connect(self.macd_progress)
 
-        self.thread = MACD_Calc()
         self.thread.set_macd_m(macd_m, 'all')
-        self.thread.set_macd_w(macd_w,
-                               'D:\\0_stock_macd\\_月K线金叉.csv')
-        self.thread.set_macd_d(macd_d,
-                               'D:\\0_stock_macd\\_周K线金叉.csv')
+        self.thread.set_macd_w(macd_w, 'D:\\0_stock_macd\\_月K线金叉.csv')
+        self.thread.set_macd_d(macd_d, 'D:\\0_stock_macd\\_周K线金叉.csv')
         self.thread.start()
 
-    def init_wd( self ):
-        '''全部股票代码选出周线金叉，在此基础上再选日线金叉'''
+    def init_wd(self):
+        """ 全部股票代码选出周线金叉，在此基础上再选日线金叉"""
         self.statusbar.showMessage('金叉初始化(周日)')
         macd_w = mb.MACD_INDEX('w')
         macd_w.signal.send.connect(self.macd_progress)
         macd_d = mb.MACD_INDEX('d')
         macd_d.signal.send.connect(self.macd_progress)
 
-        self.thread = MACD_Calc()
         self.thread.set_macd_w(macd_w, 'all')
-
-        self.thread.set_macd_d(macd_d,
-                               'D:\\0_stock_macd\\_周K线金叉.csv')
+        self.thread.set_macd_d(macd_d, 'D:\\0_stock_macd\\_周K线金叉.csv')
         self.thread.start()
 
-    def init_d( self ):
-        '''全部股票代码选出日线金叉'''
+    def init_d(self):
+        """全部股票代码选出日线金叉"""
         self.statusbar.showMessage('金叉初始化(日)')
         macd_d = mb.MACD_INDEX('d')
         macd_d.signal.send.connect(self.macd_progress)
 
-        self.thread = MACD_Calc()
         self.thread.set_macd_d(macd_d, 'all')
         self.thread.start()
 
-    def set_init_conditions( self ):
+    def set_init_conditions(self):
         self.radioButton_2.setChecked(True)
         self.radioButton_6.setChecked(True)
         self.radioButton_9.setChecked(True)
 
-    def conditions( self ):
+    def conditions(self):
+        global path
         self.statusbar.showMessage('正在计算...')
         self.listWidget.clear()
         if self.radioButton.isChecked():
@@ -206,16 +228,14 @@ class stock_UI(QtWidgets.QMainWindow, UI.Ui_MainWindow):
                     rst = rst + '\t' + all_stock.iloc[i]['stock_name']
                     self.listWidget.addItem(rst)
 
-    def macd_progress( self, curr ):
+    def macd_progress(self, curr):
         self.label.setText(curr)
         QtWidgets.QApplication.processEvents()
 
 
 if __name__ == "__main__":
-    import sys
-
     app = QtWidgets.QApplication(sys.argv)
-    MP = stock_UI()
+    MP = StockUi()
     MP.setWindowTitle(' ~^_^~ MACD指标选股')
     MP.show()
     sys.exit(app.exec_())
