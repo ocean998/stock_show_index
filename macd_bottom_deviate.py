@@ -9,7 +9,7 @@ if __name__ == '__main__':
     df = macd_60.get_index('sz.000897')
     print("df"*9)
     print(df)
-    df2 = macd_60.get_MACD(df)
+    df2 = macd_60.get_macd(df)
     # 取完macd下面判断各种选股条件
     # 底背离
     # dbl_rst = ab.analyze_bottom(df2, True)

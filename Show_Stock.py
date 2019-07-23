@@ -92,18 +92,14 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
             # print('radioButton_6 60 分钟级别')
             self.jb = '60'
 
-
         if self.radioButton_7.isChecked():
             # print('radioButton_7 15 分钟级别')
             self.jb = '15'
-
 
         if self.radioButton_12.isChecked():
             # print('radioButton_12 日线级别')
             self.jb = 'd'
 
-
-        print(code)
         charts = geh.StockData(code, self.jb)
         charts.kline()
         charts.volume_bar()
@@ -224,8 +220,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
             code = stock_code.iloc[x]['stock_code']
             for i in range(1, all_stock.shape[0]):
                 if all_stock.iloc[i]['stock_code'].find(code[3:]) > 0:
-                    rst = '{: <4d}'.format(x + 1) + code
-                    rst = rst + '\t' + all_stock.iloc[i]['stock_name']
+                    rst = code  + ' ' + all_stock.iloc[i]['stock_name']
                     self.listWidget.addItem(rst)
 
     def macd_progress(self, curr):

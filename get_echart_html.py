@@ -12,7 +12,7 @@ from pyecharts.globals import ThemeType
 
 class StockData:
     # code 股票代码 cycle 级别
-    def __init__(self, code: str, cycle: str):
+    def __init__(self, code: object, cycle: object) -> object:
         # code为带点的股票代码如 sz.000725,提取为没有点的 sz000725
         if cycle in ["15", "60"]:
             self.code = code[:2] + code[3:]
@@ -48,10 +48,10 @@ class StockData:
             __base_macd = mb.MACD_INDEX('m')
 
         self.data = __macd.get_index(self.code)
-        self.macd = __macd.get_MACD(self.data)
+        self.macd = __macd.get_macd(self.data)
 
         self.base_data = __base_macd.get_index(self.base_code)
-        self.base_macd = __base_macd.get_MACD(self.base_data)
+        self.base_macd = __base_macd.get_macd(self.base_data)
 
         # 周期为60 15的 日期和时间之间添加换行
         if len(str(self.cycle)) == 2:

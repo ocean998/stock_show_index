@@ -57,7 +57,7 @@ class MyFigure(FigureCanvas):
         self.axes = self.fig.add_subplot(1, 1, 1)
         mi = mb.MACD_INDEX(cycle)
         data = mi.get_index(code)
-        self.macd = mi.get_MACD(data)
+        self.macd = mi.get_macd(data)
         mi.disconnect()
 
         idx_macd = self.macd.loc[10:, ['time', 'dif', 'dea', 'macd']]
@@ -90,7 +90,7 @@ class MyPlot():
     def get_index(self, code=None, cycle='60'):
         mi = mb.MACD_INDEX(cycle)
         data = mi.get_index(code)
-        self.macd = mi.get_MACD(data)
+        self.macd = mi.get_macd(data)
         # self.macd.to_csv('C:/Users/Administrator/PycharmProjects/stock_show_index/macd.csv')
         mi.disconnect()
 

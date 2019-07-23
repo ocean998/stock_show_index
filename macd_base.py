@@ -4,7 +4,8 @@ import pandas as pd
 import stock_base
 import analyze_base as ab
 import requests
-from PyQt5.QtCore import pyqtSignal,QObject
+from PyQt5.QtCore import pyqtSignal, QObject
+
 
 class MACD_Error(Exception):
     """"各函数返回异常结果时抛出的异常"""
@@ -13,6 +14,7 @@ class MACD_Error(Exception):
         Exception.__init__(self)
         self.msg = msg
 
+
 class QTypeSignal(QObject):
     # 定义一个信号
     send = pyqtSignal(str)
@@ -20,22 +22,25 @@ class QTypeSignal(QObject):
     def __init__(self):
         super(QTypeSignal, self).__init__()
 
-    def sendmsg(self,msg):
+    def sendmsg(self, msg):
         # 发射信号
         self.send.emit(msg)
 
+
 class MACD_INDEX:
-    '''
+    """
             计算macd指标，需要初始化周期级别
-    '''
+    """
     signal = None
+
     def __init__(self, jb: object = 'd') -> object:
-        '''
+        """
                 根据周期初始化 开始时间，结束时间，股票列表
-        '''
+        """
         # 定义信号量，用于发送计算过程的百分比,str为函数说明和分母，int为分子
         self.signal = QTypeSignal()
-        #### 登陆系统 ####
+
+        # ### 登陆系统 ####
         lg = bs.login()
         # 显示登陆返回信息
         if int(lg.error_code) == 0:
@@ -52,7 +57,7 @@ class MACD_INDEX:
 
         print('k线级别:', self.jb, '\t开始时间:', self.begin, '\t结束时间:', self.end)
 
-    def disconnect( self ):
+    def disconnect(self):
         lg = bs.logout()
         if int(lg.error_code) == 0:
             self.status = '退出成功'
@@ -60,7 +65,7 @@ class MACD_INDEX:
             self.status = '退出失败'
 
     def set_time(self, begin='2019', end='2019'):
-        '''重新设置开始时间和结束时间'''
+        """重新设置开始时间和结束时间"""
         if begin != '2019':
             self.begin = begin
         if end != '2019':
@@ -68,13 +73,16 @@ class MACD_INDEX:
         print('k线级别:', self.jb, '\t新设置的开始时间:', self.begin, '\t结束时间:', self.end)
 
     def get_min_index(self, code, jb):
-        '''获取实时数据，60分钟,15分钟'''
-           # 'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sz000725&scale=15&ma=no&datalen=64'
+        """获取实时数据，60分钟,15分钟"""
+        # 'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol='
+        # 'sz000725&scale=15&ma=no&datalen=64'
         # [{day:"2019-04-10 13:45:00",open:"3.930",high:"3.940",low:"3.910",close:"3.910",volume:"20579496"},
         # {day:"2019-04-10 14:00:00",open:"3.910",high:"3.930",low:"3.910",close:"3.930",volume:"15421922"}
-        url = 'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=####&scale=$$$$&ma=no&datalen=64'
-        mycode = code.replace('.','')
-        url2 = url.replace('####', mycode)
+
+        url = 'http://money.finance.sina.com.cn/quotes_service/api/json_v2.php'
+        url = url + '/CN_MarketData.getKLineData?symbol=####&scale=$$$$&ma=no&datalen=64'
+        myCode = code.replace('.', '')
+        url2 = url.replace('####', myCode)
         code_url = url2.replace('$$$$', jb)
         resp = requests.post(code_url).text
 
@@ -83,7 +91,7 @@ class MACD_INDEX:
 
         txt = resp[2:len(resp) - 2]
         # DataFrame 初始化和添加一行数据
-        df_rst = pd.DataFrame(columns=('time','open', 'high', 'low', 'close', 'volume'))
+        df_rst = pd.DataFrame(columns=('time', 'open', 'high', 'low', 'close', 'volume'))
 
         rst = []
         point = 0
@@ -120,9 +128,8 @@ class MACD_INDEX:
         return df_rst
 
     def get_index(self, code: str) -> pd.DataFrame:
-        """
-                根据周期初始化 开始时间，结束时间，获取远程指标数据
-                d=日k线、w=周、m=月、5=5分钟、15=15分钟、30=30分钟、60=60分钟k线数据
+        """ 根据周期初始化 开始时间，结束时间，获取远程指标数据
+            d=日k线、w=周、m=月、5=5分钟、15=15分钟、30=30分钟、60=60分钟k线数据
         """
         self.code = code
         if self.jb in ['d', 'w', 'm']:
@@ -136,15 +143,15 @@ class MACD_INDEX:
                 adjustflag="2")
             # 复权状态(1：后复权， 2：前复权，3：不复权）
             if rs.error_code != '0':
-                raise MACD_Error("%s :k线指标获取失败！ %s" % (code, rs.error_msg) )
+                raise MACD_Error("%s :k线指标获取失败！ %s" % (code, rs.error_msg))
 
             data_list = []
             while (rs.error_code == '0') & rs.next():
                 # 获取一条记录，将记录合并在一起
                 xx = rs.get_row_data()
                 # print(xx)
-                for i in range(1,5,1):
-                    xx[i]=float('%.2f' % float(xx[i]))
+                for i in range(1, 5, 1):
+                    xx[i] = float('%.2f' % float(xx[i]))
                 data_list.append(xx)
 
             result = pd.DataFrame(data_list, columns=rs.fields)
@@ -153,21 +160,20 @@ class MACD_INDEX:
 
             return result
 
-        if self.jb in [ '60', '15'  ]:
+        if self.jb in ['60', '15']:
             try:
-                rst = self.get_min_index(self.code,str(self.jb))
+                rst = self.get_min_index(self.code, str(self.jb))
             except MACD_Error:
                 raise MACD_Error('url获取数据失败！')
             else:
                 return rst
 
-
-    def get_MACD(self, data: object, sema: object = 12, lema: object = 26, m_ema: object = 9) -> object:
-        '''
+    def get_macd(self, data: pd.DataFrame, sema: object = 12, lema: object = 26, m_ema: object = 9) -> pd.DataFrame:
+        """
             根据股票代码计算macd结果，设置macd属性
             data是包含高开低收成交量的标准dataframe
             sema,lema,m_ema分别是macd的三个参数
-        '''
+        """
         # print(data)
         if data.shape[0] < 30:
             raise MACD_Error('K线数据少于30个周期，不计算MACD')
@@ -199,8 +205,9 @@ class MACD_INDEX:
                 '大陆代码'))
         # print('\r', str(10 - i).ljust(10), end='')
 
-        stock_code = stock_base.get_stock_code(market)
+        stockCode = stock_base.get_stock_code(market)
 
+        pre = ''
         if self.jb == 'm':
             pre = '月K线金叉'
         if self.jb == 'd':
@@ -214,20 +221,20 @@ class MACD_INDEX:
 
         self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
         line = 0
-        cnt = stock_code.shape[0]
+        cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
         for x in range(cnt):
             pre2 = ', 剩余 ' + str(cnt - x - 1) + ' 只，完成 {:.2f}%'.format(
                 (x + 1) * 100 / cnt) + ' 选出 ' + str(line) + ' 只'
             print('\r', pre, pre2.ljust(10), end='')
-            self.signal.sendmsg(pre+', 总数 ' + str(cnt) + ' 只'+pre2)
+            self.signal.sendmsg(pre + ', 总数 ' + str(cnt) + ' 只' + pre2)
             try:
-                df = self.get_index(stock_code.iloc[x]['stock_code'])
+                df = self.get_index(stockCode.iloc[x]['stock_code'])
             except MACD_Error:
                 continue
 
             try:
-                df2 = self.get_MACD(df)
+                df2 = self.get_macd(df)
             except MACD_Error:
                 continue
 
@@ -242,7 +249,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = df3
 
         print('\n\t\t', '完成！请打开：', self.save_name, '\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
+        df_rst.to_csv(self.save_name, index=False, header=True, encoding='utf_8_sig')
 
     def save_bing_golden(self, market='all'):
         """周线选股时，日线即将金叉，或者已经金叉的日线级别增强判断"""
@@ -256,8 +263,9 @@ class MACD_INDEX:
                 '大陆代码'))
         # print('\r', str(10 - i).ljust(10), end='')
 
-        stock_code = stock_base.get_stock_code(market)
+        stockCode = stock_base.get_stock_code(market)
 
+        pre = ''
         if self.jb == 'm':
             pre = '月K线(即将)金叉'
         if self.jb == 'd':
@@ -266,25 +274,25 @@ class MACD_INDEX:
             pre = '周K线(即将)金叉'
         if self.jb == '60':
             pre = '60分钟K(即将)线金叉'
-        if self.jb == '15':
+        if not self.jb != '15':
             pre = '15分钟K线(即将)金叉'
 
         self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
         line = 0
-        cnt = stock_code.shape[0]
+        cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
         for x in range(cnt):
             pre2 = ', 剩余 ' + str(cnt - x - 1) + ' 只，完成 {:.2f}%'.format(
                 (x + 1) * 100 / cnt) + ' 选出 ' + str(line) + ' 只'
             print('\r', pre, pre2.ljust(10), end='')
-            self.signal.sendmsg(pre+', 总数 ' + str(cnt) + ' 只'+pre2)
+            self.signal.sendmsg(pre + ', 总数 ' + str(cnt) + ' 只' + pre2)
             try:
-                df = self.get_index(stock_code.iloc[x]['stock_code'])
+                df = self.get_index(stockCode.iloc[x]['stock_code'])
             except MACD_Error:
                 continue
 
             try:
-                df2 = self.get_MACD(df)
+                df2 = self.get_macd(df)
             except MACD_Error:
                 continue
 
@@ -297,7 +305,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = df3
 
         print('\n\t\t', '完成！请打开：', self.save_name, '\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
+        df_rst.to_csv(self.save_name, index=False, header=True, encoding='utf_8_sig')
 
     def save_golden_now(self, market='all', isprt=False):
         df_rst = pd.DataFrame(
@@ -309,9 +317,11 @@ class MACD_INDEX:
                 '将要金叉周期',
                 '大陆代码'))
         try:
-            stock_code = stock_base.get_stock_code(market)
-        except sb.stkBaseError:
+            stockCode = stock_base.get_stock_code(market)
+        except stock_base.stkBaseError:
             return
+
+        pre = ''
         if self.jb == 'm':
             pre = '月K线(刚刚)金叉'
         if self.jb == 'd':
@@ -325,20 +335,20 @@ class MACD_INDEX:
 
         self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
         line = 0
-        cnt = stock_code.shape[0]
+        cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
         for x in range(cnt):
             pre2 = ', 剩余 ' + str(cnt - x - 1) + ' 只，完成 {:.2f}%'.format(
                 (x + 1) * 100 / cnt) + ' 选出 ' + str(line) + ' 只'
             print('\r', pre, pre2.ljust(10), end='')
-            self.signal.sendmsg(pre+', 总数 ' + str(cnt) + ' 只'+pre2)
+            self.signal.sendmsg(pre + ', 总数 ' + str(cnt) + ' 只' + pre2)
             try:
-                df = self.get_index(stock_code.iloc[x]['stock_code'])
+                df = self.get_index(stockCode.iloc[x]['stock_code'])
             except MACD_Error:
                 continue
 
             try:
-                df2 = self.get_MACD(df)
+                df2 = self.get_macd(df)
             except MACD_Error:
                 continue
 
@@ -360,10 +370,12 @@ class MACD_INDEX:
                 df_rst.loc[line] = df3
 
         print('\n \t\t', '完成！\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
+        df_rst.to_csv(self.save_name, index=False, header=True, encoding='utf_8_sig')
 
     def save_bottom(self, market='all', isprt=False):
-        '''保存底背离股票代码'''
+        """保存底背离股票代码"""
+
+        global stockCode
         df_rst = pd.DataFrame(
             columns=(
                 '指标类别',
@@ -374,10 +386,11 @@ class MACD_INDEX:
                 '大陆代码'))
         # market不是'all'，从传入的文件取代码
         try:
-            stock_code = stock_base.get_stock_code(market)
+            stockCode = stock_base.get_stock_code(market)
         except stock_base.stkBaseError:
             print(stock_base.stkBaseError)
 
+        pre = ''
         if self.jb == 'm':
             pre = '月K线 即将底背离'
         if self.jb == 'd':
@@ -391,20 +404,20 @@ class MACD_INDEX:
 
         self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
         line = 0
-        cnt = stock_code.shape[0]
+        cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
         for x in range(cnt):
             pre2 = ', 剩余 ' + str(cnt - x - 1) + ' 只，完成 {:.2f}%'.format(
                 (x + 1) * 100 / cnt) + ' 选出 ' + str(line) + ' 只'
             print('\r', pre, pre2.ljust(10), end='')
-            self.signal.sendmsg(pre+', 总数 ' + str(cnt) + ' 只'+pre2)
+            self.signal.sendmsg(pre + ', 总数 ' + str(cnt) + ' 只' + pre2)
             try:
-                df = self.get_index(stock_code.iloc[x]['stock_code'])
+                df = self.get_index(stockCode.iloc[x]['stock_code'])
             except MACD_Error:
                 continue
 
             try:
-                df2 = self.get_MACD(df)
+                df2 = self.get_macd(df)
             except MACD_Error:
                 continue
             try:
@@ -416,51 +429,7 @@ class MACD_INDEX:
                 df_rst.loc[line] = dbl_rst
 
         print('\n \t\t', '完成！\n')
-        df_rst.to_csv(self.save_name, index=False, header=True,encoding='utf_8_sig')
-
-    def save_top(self, market='all', isprt=False):
-        df_rst = pd.DataFrame(
-            columns=(
-                '类别',
-                '股票代码',
-                '日期',
-                '快线强弱',
-                '将要金叉周期',
-                '大陆代码'))
-        # market不是'all'，从传入的文件取代码
-        stock_code = stock_base.get_stock_code(market)
-
-        if self.jb == 'm':
-            pre = '月K线 顶背离'
-        if self.jb == 'd':
-            pre = '日K线 顶背离'
-        if self.jb == 'w':
-            pre = '周K线 顶背离'
-        if self.jb == '60':
-            pre = '60分钟K线 顶背离'
-        if self.jb == '15':
-            pre = '15分钟K线 顶背离'
-
-        self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
-        line = 0
-        cnt = stock_code.shape[0]
-        print('开始计算,总数 ' + str(cnt) + ' 只')
-        for x in range(cnt):
-
-            pre2 = ', 剩余 ' + str(cnt - x - 1) + ' 只，完成 {:.2f}%'.format(
-                (x + 1) * 100 / cnt) + ' 选出 ' + str(line) + ' 只'
-            print('\r', pre, pre2.ljust(10), end='')
-            self.signal.sendmsg(pre+', 总数 ' + str(cnt) + ' 只'+pre2)
-            try:
-                df = self.get_index(stock_code.iloc[x]['stock_code'])
-            except MACD_Error:
-                continue
-
-            try:
-                df2 = self.get_MACD(df)
-            except MACD_Error:
-                continue
-            df3 = self.analyze_top(df2, isprt)
+        df_rst.to_csv(self.save_name, index=False, header=True, encoding='utf_8_sig')
 
 
 if __name__ == "__main__":
@@ -483,7 +452,7 @@ if __name__ == "__main__":
     # 周K线已经金叉，算日线即将金叉  # macd_d = MACD_INDEX('d')  #  #
     # macd_d.save_bing_golden('D:\\0_stock_macd\\_周K线金叉.csv')
 
-    # stock_code = stock_base.get_stock_code('D:\\0_stock_macd\\_周K线金叉.csv')
-    # # # cnt = stock_code.shape[0]
+    # stockCode = stock_base.get_stock_code('D:\\0_stock_macd\\_周K线金叉.csv')
+    # # # cnt = stockCode.shape[0]
 
 # 单只股票调试
