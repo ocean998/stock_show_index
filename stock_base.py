@@ -1,10 +1,17 @@
 import pandas as pd
 import datetime as dt
 import tushare as ts
+import os
+
+from pandas import DataFrame
+
+curr_path = os.getcwd()
+macd_csv = curr_path + '\param_macd_csv'
+code_csv: str = curr_path + '\parameters\股票代码.csv'
 
 
 class stkBaseError(Exception):
-    """"各函数返回异常结果时抛出的异常"""
+    """各函数返回异常结果时抛出的异常"""
 
     def __init__(self, msg):
         Exception.__init__(self)
@@ -12,11 +19,11 @@ class stkBaseError(Exception):
 
 
 def get_start_time(period='d'):
-    '''
+    """
         根据周期获取开始、结束时间段
         preiod 为周期 取值为
         d=日k线、w=周、m=月、5=5分钟、15=15分钟、30=30分钟、60=60分钟k线数据
-    '''
+    """
     begend = []
     if period == 'd':
         begin = dt.datetime.now() + dt.timedelta(days=-90)
@@ -52,9 +59,13 @@ def get_start_time(period='d'):
     return begend
 
 
-def get_rst_code(path=None):
+def get_rst_code(path=None) -> pd.DataFrame:
+    """
+        返回股票代码列表
+    """
     if path is None:
         return None
+    assert isinstance(path, object)
     df = pd.read_csv(path)
 
     code = []
@@ -76,33 +87,33 @@ def set_market_code():
     # 查询当前所有正常上市交易的股票列表
     data = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name')
     code = []
-    codes = pd.DataFrame(columns=('stock_code', 'stock_name'))
+    codes: DataFrame = pd.DataFrame(columns=('stock_code', 'stock_name'))
     for i in range(1, data.shape[0]):
         code.append(data.iloc[i]['ts_code'][7:10].lower() +
                     '.' + data.iloc[i]['ts_code'][0:6])
         code.append(data.iloc[i]['name'])
         codes.loc[i] = code
         code.clear()
-    codes.to_csv('股票代码.csv', index=False, header=True,encoding='utf_8_sig')
+    codes.to_csv(code_csv, index=False, header=True, encoding='utf_8_sig')
 
 
-def get_market_code(market):
-    '''
+def get_market_code(market) -> pd.DataFrame:
+    """
             根据磁盘上的文件获得上海、深圳股票市场全部代码
             market='sz' 表示深圳股市代码，market='sh' 代表 上海
             返回pandas.DataFrame类型的代码和名称列表
-        '''
+        """
     if market != 'all':
         return None
 
     try:
-        df = pd.read_csv('股票代码.csv',encoding='utf_8_sig')
+        df = pd.read_csv(code_csv, encoding='utf_8_sig')
         return df
     except BaseException:
         raise stkBaseError('get_rst_code error')
 
 
-def get_stock_code(market=None):
+def get_stock_code(market=None) -> pd.DataFrame:
     try:
         if market == 'all':
             # 	在本地原始文件中取股票代码代码
@@ -118,8 +129,9 @@ def get_stock_code(market=None):
 if __name__ == "__main__":
     # df = stock_base.get_stock_code( 'D:\\0_stock_macd\\_月K线金叉.csv' )
     # # print( df )
-    set_market_code()
+    # set_market_code()
     rst = get_market_code('all')
+
     print(rst)
     #
     # xx = get_stock_code('D:\\0_stock_macd\\_月K线金叉.csv')

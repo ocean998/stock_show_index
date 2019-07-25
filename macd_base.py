@@ -219,8 +219,9 @@ class MACD_INDEX:
         if self.jb == '15':
             pre = '15分钟K线金叉'
 
-        self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
+        self.save_name = stock_base.macd_csv + '_' + pre + '.csv'
         line = 0
+
         cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
         for x in range(cnt):
@@ -277,7 +278,7 @@ class MACD_INDEX:
         if not self.jb != '15':
             pre = '15分钟K线(即将)金叉'
 
-        self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
+        self.save_name = stock_base.macd_csv + '_' + pre + '.csv'
         line = 0
         cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
@@ -333,7 +334,7 @@ class MACD_INDEX:
         if self.jb == '15':
             pre = '15分钟K线(刚刚)金叉'
 
-        self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
+        self.save_name = stock_base.macd_csv + '_' + pre + '.csv'
         line = 0
         cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')
@@ -402,7 +403,7 @@ class MACD_INDEX:
         if self.jb == '15':
             pre = '15分钟K线 即将底背离'
 
-        self.save_name = 'D:\\0_stock_macd\\' + '_' + pre + '.csv'
+        self.save_name = stock_base.macd_csv + '_' + pre + '.csv'
         line = 0
         cnt = stockCode.shape[0]
         print('开始计算,总数 ' + str(cnt) + ' 只')

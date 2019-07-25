@@ -220,7 +220,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
             code = stock_code.iloc[x]['stock_code']
             for i in range(1, all_stock.shape[0]):
                 if all_stock.iloc[i]['stock_code'].find(code[3:]) > 0:
-                    rst = code  + ' ' + all_stock.iloc[i]['stock_name']
+                    rst = code + ' ' + all_stock.iloc[i]['stock_name']
                     self.listWidget.addItem(rst)
 
     def macd_progress(self, curr):
