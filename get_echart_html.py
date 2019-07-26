@@ -3,7 +3,7 @@ import macd_base as mb
 from pyecharts import options as opts
 from pyecharts.charts import Kline, Line, Bar
 from pyecharts.globals import ThemeType
-
+import os
 """
     获得指标展示的html结果
     接受股票代码和级别
@@ -11,6 +11,8 @@ from pyecharts.globals import ThemeType
 
 
 class StockData:
+    kline_path: str
+
     # code 股票代码 cycle 级别
     def __init__(self, code: object, cycle: object) -> object:
         # code为带点的股票代码如 sz.000725,提取为没有点的 sz000725
@@ -20,6 +22,11 @@ class StockData:
             self.code = code
         self.base_code = code
         self.cycle = cycle
+        self.kline_path = os.getcwd() + r'\param_html\K线.html'
+        self.volume_path = os.getcwd() + r'\param_html\volume.html'
+        self.macd_path = os.getcwd() + r'\param_html\macd.html'
+        self.base_macd_path = os.getcwd() + r'\param_html\base_macd.html'
+        
         # 时间点列表
         self.time_point = []
         self.time_point_base = []
@@ -95,7 +102,7 @@ class StockData:
             datazoom_opts=[opts.DataZoomOpts(range_start=60, range_end=100)], )
         # 设置缩放 datazoom_opts= [opts.DataZoomOpts(range_start=10, range_end=80,is_zoom_lock=False)],
         kline.overlap(ma_line)
-        kline.render("K线.html")
+        kline.render(self.kline_path)
 
     # 成交量
     def volume_bar(self):
@@ -120,7 +127,7 @@ class StockData:
                                 )
                )
 
-        bar.render("volume.html")
+        bar.render(self.volume_path)
 
     def macd_line(self):
         macd_line = (Line(init_opts=opts.InitOpts(theme=ThemeType.DARK, width="1300px", height="200px"))
@@ -135,7 +142,7 @@ class StockData:
                                       datazoom_opts=[opts.DataZoomOpts(range_start=60, range_end=100)],
                                       )
                      )
-        macd_line.render("macd.html")
+        macd_line.render(self.macd_path)
 
     def base_macd_line(self):
         macd_line = (Line(init_opts=opts.InitOpts(theme=ThemeType.DARK, width="660px", height="200px"))
@@ -150,7 +157,7 @@ class StockData:
                                       datazoom_opts=[opts.DataZoomOpts(range_start=60, range_end=100)],
                                       )
                      )
-        macd_line.render("base_macd.html")
+        macd_line.render(self.base_macd_path)
 
 if __name__ == '__main__':
     sd = StockData('sz.002006', 'm')

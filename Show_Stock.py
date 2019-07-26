@@ -5,34 +5,39 @@ from PyQt5.QtCore import QThread, QUrl
 import stock_base as stb
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import get_echart_html as geh
-import sys
+import os, sys
 
 
 # 多线程 取数据计算macd 避免界面无响应
 class MacdCalc(QThread):
-    macd_m = None
-    para_m = ''
-
-    macd_w = None
-    para_w = ''
-
-    macd_d = None
-    para_d = ''
 
     def __init__(self):
         super().__init__()
+        self.set_init()
+
+    def set_init(self):
+        self.macd_m = None
+        self.para_m = ''
+
+        self.macd_w = None
+        self.para_w = ''
+
+        self.macd_d = None
+        self.para_d = ''
 
     # 初始化月 周 日 macd
-
     def set_macd_m(self, what_macd, what_para):
+        self.set_init()
         self.macd_m = what_macd
         self.para_m = what_para
 
     def set_macd_w(self, what_macd, what_para):
+        self.set_init()
         self.macd_w = what_macd
         self.para_w = what_para
 
     def set_macd_d(self, what_macd, what_para):
+        self.set_init()
         self.macd_d = what_macd
         self.para_d = what_para
 
@@ -41,14 +46,17 @@ class MacdCalc(QThread):
 
     def run(self):
         if self.macd_m is not None:
+            print('month', self.para_m)
             self.macd_m.save_golden(self.para_m)
             self.macd_m.disconnect()
 
         if self.macd_w is not None:
+            print('week', self.para_w)
             self.macd_w.save_golden(self.para_w)
             self.macd_w.disconnect()
 
         if self.macd_d is not None:
+            print("day", self.macd_d)
             self.macd_d.save_golden(self.para_d)
             self.macd_d.disconnect()
 
@@ -70,7 +78,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.html_volume = QWebEngineView()
         self.html_macd = QWebEngineView()
         self.html_base = QWebEngineView()
-
+        self.csv_path = os.getcwd() + '\\param_macd_csv\\'
         self.jb = '60'
         self.set_init_conditions()
 
@@ -106,10 +114,10 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         charts.macd_line()
         charts.base_macd_line()
 
-        self.html_index.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/k线.html"))
-        self.html_volume.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/volume.html"))
-        self.html_macd.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/macd.html"))
-        self.html_base.load(QUrl("file:///C:/Users/Administrator/PycharmProjects/stock_show_index/base_macd.html"))
+        self.html_index.load(QUrl(charts.kline_path))
+        self.html_volume.load(QUrl(charts.volume_path))
+        self.html_macd.load(QUrl(charts.macd_path))
+        self.html_base.load(QUrl(charts.base_macd_path))
 
         self.formLayout.addWidget(self.html_index)
         self.formLayout_2.addWidget(self.html_volume)
@@ -130,8 +138,8 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         macd_d.signal.send.connect(self.macd_progress)
 
         self.thread.set_macd_m(macd_m, 'all')
-        self.thread.set_macd_w(macd_w, 'D:\\0_stock_macd\\_月K线金叉.csv')
-        self.thread.set_macd_d(macd_d, 'D:\\0_stock_macd\\_周K线金叉.csv')
+        self.thread.set_macd_w(macd_w, self.csv_path+'_月K线金叉.csv')
+        self.thread.set_macd_d(macd_d, self.csv_path+'_周K线金叉.csv')
         self.thread.start()
 
     def init_wd(self):
@@ -143,7 +151,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         macd_d.signal.send.connect(self.macd_progress)
 
         self.thread.set_macd_w(macd_w, 'all')
-        self.thread.set_macd_d(macd_d, 'D:\\0_stock_macd\\_周K线金叉.csv')
+        self.thread.set_macd_d(macd_d, self.csv_path+'_周K线金叉.csv')
         self.thread.start()
 
     def init_d(self):
@@ -161,20 +169,21 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.radioButton_9.setChecked(True)
 
     def conditions(self):
+        # noinspection PyGlobalUndefined
         global path
         self.statusbar.showMessage('正在计算...')
         self.listWidget.clear()
         if self.radioButton.isChecked():
             # print('radioButton 月线')
-            path = 'D:\\0_stock_macd\\_月K线金叉.csv'
+            path = self.csv_path+'_月K线金叉.csv'
 
         if self.radioButton_2.isChecked():
             # print('radioButton_2 周线')
-            path = 'D:\\0_stock_macd\\_周K线金叉.csv'
+            path = self.csv_path+'_周K线金叉.csv'
 
         if self.radioButton_3.isChecked():
             # print('radioButton_3 日线')
-            path = 'D:\\0_stock_macd\\_日K线金叉.csv'
+            path = self.csv_path+'_日K线金叉.csv'
 
         if self.radioButton_6.isChecked():
             # print('radioButton_6 60 分钟级别')
@@ -231,6 +240,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MP = StockUi()
+
     MP.setWindowTitle(' ~^_^~ MACD指标选股')
     MP.show()
     sys.exit(app.exec_())

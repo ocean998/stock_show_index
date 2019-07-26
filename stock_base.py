@@ -6,8 +6,8 @@ import os
 from pandas import DataFrame
 
 curr_path = os.getcwd()
-macd_csv = curr_path + '\param_macd_csv'
-code_csv: str = curr_path + '\parameters\股票代码.csv'
+macd_csv = curr_path + '\\param_macd_csv\\'
+code_csv: str = curr_path + '\\parameters\\股票代码.csv'
 
 
 class stkBaseError(Exception):
@@ -65,7 +65,7 @@ def get_rst_code(path=None) -> pd.DataFrame:
     """
     if path is None:
         return None
-    assert isinstance(path, object)
+    assert isinstance(path, str)
     df = pd.read_csv(path)
 
     code = []
@@ -127,12 +127,12 @@ def get_stock_code(market=None) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    # df = stock_base.get_stock_code( 'D:\\0_stock_macd\\_月K线金叉.csv' )
-    # # print( df )
+    df = get_stock_code( r'C:\Users\Administrator\PycharmProjects\stock_show_index\param_macd_csv\_月K线金叉.csv' )
+    print( df )
     # set_market_code()
-    rst = get_market_code('all')
-
-    print(rst)
+    # rst = get_market_code('all')
+    #
+    # print(rst)
     #
     # xx = get_stock_code('D:\\0_stock_macd\\_月K线金叉.csv')
     # print(xx)
