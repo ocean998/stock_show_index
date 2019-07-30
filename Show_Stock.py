@@ -27,17 +27,14 @@ class MacdCalc(QThread):
 
     # 初始化月 周 日 macd
     def set_macd_m(self, what_macd, what_para):
-        self.set_init()
         self.macd_m = what_macd
         self.para_m = what_para
 
     def set_macd_w(self, what_macd, what_para):
-        self.set_init()
         self.macd_w = what_macd
         self.para_w = what_para
 
     def set_macd_d(self, what_macd, what_para):
-        self.set_init()
         self.macd_d = what_macd
         self.para_d = what_para
 
@@ -46,20 +43,20 @@ class MacdCalc(QThread):
 
     def run(self):
         if self.macd_m is not None:
-            print('month', self.para_m)
+            print('month   :', self.para_m)
             self.macd_m.save_golden(self.para_m)
             self.macd_m.disconnect()
 
         if self.macd_w is not None:
-            print('week', self.para_w)
+            print('week   :', self.para_w)
             self.macd_w.save_golden(self.para_w)
             self.macd_w.disconnect()
 
         if self.macd_d is not None:
-            print("day", self.macd_d)
+            print("day   :", self.macd_d)
             self.macd_d.save_golden(self.para_d)
             self.macd_d.disconnect()
-
+        self.set_init()
 
 class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
     """根据界面、逻辑分离原则 初始化界面部分"""
@@ -74,7 +71,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.pushButton_5.clicked.connect(self.plot_index)
         self.listWidget.itemClicked.connect(self.list_clicked)
         self.thread = MacdCalc()
-        self.html_index = QWebEngineView()
+        self.html_kline = QWebEngineView()
         self.html_volume = QWebEngineView()
         self.html_macd = QWebEngineView()
         self.html_base = QWebEngineView()
@@ -87,10 +84,10 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         code = item.text()
         self.lineEdit.setText(code)
 
-    def plot_index(self):
         """
             显示指标图形
         """
+    def plot_index(self):
         if len(self.lineEdit.text().strip()) < 10:
             print('错误提示框')
         code = self.lineEdit.text().split(' ')[0]
@@ -114,12 +111,13 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         charts.macd_line()
         charts.base_macd_line()
 
-        self.html_index.load(QUrl(charts.kline_path))
+        self.html_kline.load(QUrl(charts.kline_path))
+        print(charts.kline_path)
         self.html_volume.load(QUrl(charts.volume_path))
         self.html_macd.load(QUrl(charts.macd_path))
         self.html_base.load(QUrl(charts.base_macd_path))
 
-        self.formLayout.addWidget(self.html_index)
+        self.formLayout.addWidget(self.html_kline)
         self.formLayout_2.addWidget(self.html_volume)
         self.formLayout_3.addWidget(self.html_macd)
         self.formLayout_4.addWidget(self.html_base)
@@ -144,9 +142,11 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
 
     def init_wd(self):
         """ 全部股票代码选出周线金叉，在此基础上再选日线金叉"""
+        print('全部股票代码选出周线金叉，在此基础上再选日线金叉')
         self.statusbar.showMessage('金叉初始化(周日)')
         macd_w = mb.MACD_INDEX('w')
         macd_w.signal.send.connect(self.macd_progress)
+
         macd_d = mb.MACD_INDEX('d')
         macd_d.signal.send.connect(self.macd_progress)
 
@@ -168,6 +168,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.radioButton_6.setChecked(True)
         self.radioButton_9.setChecked(True)
 
+    """开始选股"""
     def conditions(self):
         # noinspection PyGlobalUndefined
         global path

@@ -11,8 +11,6 @@ import os
 
 
 class StockData:
-    kline_path: str
-
     # code 股票代码 cycle 级别
     def __init__(self, code: object, cycle: object) -> object:
         # code为带点的股票代码如 sz.000725,提取为没有点的 sz000725
@@ -22,10 +20,11 @@ class StockData:
             self.code = code
         self.base_code = code
         self.cycle = cycle
-        self.kline_path = os.getcwd() + r'\param_html\K线.html'
-        self.volume_path = os.getcwd() + r'\param_html\volume.html'
-        self.macd_path = os.getcwd() + r'\param_html\macd.html'
-        self.base_macd_path = os.getcwd() + r'\param_html\base_macd.html'
+
+        self.kline_path = str(os.getcwd() + '/param_html/kline.html').replace('\\','/')
+        self.volume_path = str(os.getcwd() + '/param_html/volume.html').replace('\\','/')
+        self.macd_path = str(os.getcwd() + '/param_html/macd.html').replace('\\','/')
+        self.base_macd_path = str(os.getcwd() + '/param_html/base_macd.html').replace('\\','/')
         
         # 时间点列表
         self.time_point = []
@@ -160,7 +159,7 @@ class StockData:
         macd_line.render(self.base_macd_path)
 
 if __name__ == '__main__':
-    sd = StockData('sz.002006', 'm')
+    sd = StockData('sh.603726', 'm')
     sd.get_data()
     sd.kline()
     sd.volume_bar()
