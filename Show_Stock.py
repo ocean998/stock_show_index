@@ -43,17 +43,14 @@ class MacdCalc(QThread):
 
     def run(self):
         if self.macd_m is not None:
-            print('month   :', self.para_m)
             self.macd_m.save_golden(self.para_m)
             self.macd_m.disconnect()
 
         if self.macd_w is not None:
-            print('week   :', self.para_w)
             self.macd_w.save_golden(self.para_w)
             self.macd_w.disconnect()
 
         if self.macd_d is not None:
-            print("day   :", self.macd_d)
             self.macd_d.save_golden(self.para_d)
             self.macd_d.disconnect()
         self.set_init()
