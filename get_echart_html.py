@@ -8,8 +8,6 @@ import os
     获得指标展示的html结果
     接受股票代码和级别
 """
-
-
 class StockData:
     # code 股票代码 cycle 级别
     def __init__(self, code: object, cycle: object) -> object:

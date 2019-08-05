@@ -7,7 +7,6 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 import get_echart_html as geh
 import os, sys
 
-
 # 多线程 取数据计算macd 避免界面无响应
 class MacdCalc(QThread):
 
@@ -55,6 +54,7 @@ class MacdCalc(QThread):
             self.macd_d.disconnect()
         self.set_init()
 
+
 class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
     """根据界面、逻辑分离原则 初始化界面部分"""
 
@@ -84,6 +84,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         """
             显示指标图形
         """
+
     def plot_index(self):
         if len(self.lineEdit.text().strip()) < 10:
             print('错误提示框')
@@ -133,8 +134,8 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         macd_d.signal.send.connect(self.macd_progress)
 
         self.thread.set_macd_m(macd_m, 'all')
-        self.thread.set_macd_w(macd_w, self.csv_path+'_月K线金叉.csv')
-        self.thread.set_macd_d(macd_d, self.csv_path+'_周K线金叉.csv')
+        self.thread.set_macd_w(macd_w, self.csv_path + '_月K线金叉.csv')
+        self.thread.set_macd_d(macd_d, self.csv_path + '_周K线金叉.csv')
         self.thread.start()
 
     def init_wd(self):
@@ -148,7 +149,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         macd_d.signal.send.connect(self.macd_progress)
 
         self.thread.set_macd_w(macd_w, 'all')
-        self.thread.set_macd_d(macd_d, self.csv_path+'_周K线金叉.csv')
+        self.thread.set_macd_d(macd_d, self.csv_path + '_周K线金叉.csv')
         self.thread.start()
 
     def init_d(self):
@@ -166,6 +167,7 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.radioButton_9.setChecked(True)
 
     """开始选股"""
+
     def conditions(self):
         # noinspection PyGlobalUndefined
         global path
@@ -173,15 +175,15 @@ class StockUi(QtWidgets.QMainWindow, UI.Ui_MainWindow):
         self.listWidget.clear()
         if self.radioButton.isChecked():
             # print('radioButton 月线')
-            path = self.csv_path+'_月K线金叉.csv'
+            path = self.csv_path + '_月K线金叉.csv'
 
         if self.radioButton_2.isChecked():
             # print('radioButton_2 周线')
-            path = self.csv_path+'_周K线金叉.csv'
+            path = self.csv_path + '_周K线金叉.csv'
 
         if self.radioButton_3.isChecked():
             # print('radioButton_3 日线')
-            path = self.csv_path+'_日K线金叉.csv'
+            path = self.csv_path + '_日K线金叉.csv'
 
         if self.radioButton_6.isChecked():
             # print('radioButton_6 60 分钟级别')
